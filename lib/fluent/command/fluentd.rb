@@ -69,6 +69,10 @@ op.on('--no-supervisor', "run fluent worker without supervisor") {
   opts[:standalone_worker] = true
 }
 
+op.on('--workers NUM', "specify the number of workers under supervisor") { |i|
+  opts[:workers] = i.to_i
+}
+
 op.on('--user USER', "change user") {|s|
   opts[:chuser] = s
 }
@@ -285,5 +289,9 @@ require 'fluent/supervisor'
 if opts[:supervise]
   Fluent::Supervisor.new(opts).run_supervisor
 else
+  if opts[:workers] > 1
+    puts "Error: multi workers is not supported with --no-supervisor"
+    exit 1
+  end
   Fluent::Supervisor.new(opts).run_worker
 end
